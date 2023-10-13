@@ -1,4 +1,5 @@
 const TipoMedia = require('../models/tipo-media');
+const {query} = require("express");
 
 
 async function createTipoMedia(req,res){

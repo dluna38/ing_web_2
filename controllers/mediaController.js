@@ -1,6 +1,5 @@
 const Media = require('../models/media');
-const Director = require("../models/director");
-
+const TipoMedia = require('../models/tipo-media');
 
 async function createMedia(req,res){
     try{
@@ -42,6 +41,7 @@ async function createMedia(req,res){
             titulo:req.body.titulo,
             sinopsis:req.body.sinopsis,
             urlMedia:req.body.urlMedia,
+            imgUrlPortada:req.body.imgUrlPortada,
             releaseYear:req.body.releaseYear,
             generos:req.body.generos,
             director:req.body.director,
@@ -71,14 +71,51 @@ async function createMedia(req,res){
     }
 }
 
+
+async function getMediaQueryWithFilter(query) {
+    let myQuery = {};
+    if (query["titulo"]) {
+        myQuery["titulo"] = {$regex: `.*${query["titulo"]}.*`, $options: 'i'}
+    }
+    if (query["tipo"]) {
+        let tipoMedia = await TipoMedia.find({nombre:{$regex: `.*${query["tipo"]}.*`, $options: 'i'}}).exec();
+        if(tipoMedia !== null){
+            myQuery["tipo"] = tipoMedia[0]._id;
+        }
+    }
+    let options = {};
+
+    if (query["limit"] !== undefined) {
+        let numero = parseInt(query["limit"]);
+        if (Number.isNaN(numero)) {
+            options["limit"] = 10;
+        } else {
+            options["limit"] = numero;
+        }
+
+    }
+    if (query["sort"]) {
+        if (query["sort"] === "asc") {
+            options["sort"] = {fechaCreacion: 1};
+        } else {
+            options["sort"] = {fechaCreacion: -1};
+        }
+    }
+
+    return {myQuery, options};
+}
 async function getAllMedias(req,res){
     try{
-        
-        //const mediasDB = await Media.find({});
-        const mediasWithExtraObjectsDB = await Media.find({}).populate('generos')
+        let queryMongo = null;
+        let qFilter = null;
+        await getMediaQueryWithFilter(req.query).then(query =>{
+            qFilter = query;
+        });
+
+        const mediasWithExtraObjectsDB = await Media.find(qFilter.myQuery,null,qFilter.options).populate('generos')
         .populate('director')
         .populate('productoras')
-        .populate('tipo');
+        .populate('tipo').exec();
 
         return res.json(mediasWithExtraObjectsDB)
 
@@ -122,7 +159,7 @@ async function updateMedia(req,res){
         let mediaDB = await Media.findOne({_id:id}).exec();
 
 
-        let {titulo, sinopsis,urlMedia,releaseYear,director,generos,productoras,tipo} = req.body;
+        let {titulo, sinopsis,urlMedia,releaseYear,director,generos,productoras,tipo,imgUrlPortada} = req.body;
 
         if(titulo !== undefined) mediaDB.titulo = titulo;
         if(sinopsis !== undefined) mediaDB.sinopsis = sinopsis;
@@ -132,7 +169,7 @@ async function updateMedia(req,res){
         if(generos !== undefined) mediaDB.generos = generos;
         if(productoras !== undefined) mediaDB.productoras = productoras;
         if(tipo !== undefined) mediaDB.tipo = tipo;
-
+	if(imgUrlPortada!== undefined) mediaDB.imgUrlPortada = imgUrlPortada;
         mediaDB.fechaActualizacion = new Date();
 
         mediaDB.save().then((result) => {

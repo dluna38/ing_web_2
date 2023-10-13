@@ -26,7 +26,6 @@ const mediaSchema = Schema({
     },
     imgUrlPortada:{
         type: String,
-        unique:true,
         default:null
     },
     fechaCreacion: {
