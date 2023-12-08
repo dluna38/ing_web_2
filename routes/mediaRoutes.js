@@ -4,10 +4,7 @@ const {deleteMedia,createMedia, getAllMedias,updateMedia} =
 
 const router = Router()
 
-// crear
-router.get('/', getAllMedias);
 
-// consultar todos
 router.post('/', createMedia)
 router.put('/:id',updateMedia)
 router.delete('/:id',deleteMedia)

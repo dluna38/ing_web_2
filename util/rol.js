@@ -1,0 +1,1 @@
+module.exports={USUARIO:"USUARIO",ADMIN:"ADMIN"};

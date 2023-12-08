@@ -128,7 +128,7 @@ async function getDirector(Id,url){
 
     await axiosTMBD.get(`${url}${Id}/credits`).then((result) =>{
         let crew = result.data.crew;
-        resultFound = crew.find((crew) => crew.job === "Director")
+        let resultFound = crew.find((crew) => crew.job === "Director")
         console.log(resultFound);
         if(resultFound) director = {id: resultFound.id,name:resultFound.name};
     });
@@ -139,13 +139,5 @@ async function getDirector(Id,url){
 
 
 
-const { Router } = require('express')
-const router = Router()
 
-router.get('/movie/:nombre', searchMovie);
-router.get('/serie/:nombre', searchSerie);
-router.get('/movie/id/:id', detailMovieById);
-router.get('/serie/id/:id', detailSerieById);
-router.get('/images/:size/:uri', getImage);
-
-module.exports = router;
+module.exports = {getImage,searchMovie,searchSerie,detailMovieById,detailSerieById}

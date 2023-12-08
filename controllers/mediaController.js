@@ -106,7 +106,6 @@ async function getMediaQueryWithFilter(query) {
 }
 async function getAllMedias(req,res){
     try{
-        let queryMongo = null;
         let qFilter = null;
         await getMediaQueryWithFilter(req.query).then(query =>{
             qFilter = query;
